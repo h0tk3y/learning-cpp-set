@@ -137,12 +137,14 @@ public:
 		node** place = ((item.target->parent == nullptr) ? &__root : item.target->parent->left == item.target ? &item.target->parent->left : &item.target->parent->right);
 		if (item.target->left == nullptr)
 		{
+			if (item.target->right) item.target->right->parent = (*place)->parent;
 			*place = item.target->right;
 			delete item.target;
 			return;
 		}
 		if (item.target->right == nullptr)
 		{
+			if (item.target->left) item.target->left->parent = (*place)->parent;
 			*place = item.target->left;
 			delete item.target;
 			return;
@@ -161,8 +163,10 @@ public:
 	set(set const& s)
 	{
 		__root = nullptr;
-		set result = set();
-		iterator i = iterator(s.__root);
+		node* n = s.__root;
+		while (n != nullptr && n->left != nullptr)
+			n = n->left;
+		iterator i = iterator(n);
 		while (i.exists())
 		{
 			insert(*i);
@@ -178,8 +182,10 @@ public:
 	set& operator= (set const& s)
 	{
 		__root = nullptr;
-		set result = set();
-		iterator i = iterator(s.__root);
+		node* n = s.__root;
+		while (n != nullptr && n->left != nullptr)
+			n = n->left;
+		iterator i = iterator(n);
 		while (i.exists())
 		{
 			insert(*i);
@@ -211,7 +217,7 @@ public:
 			return target != nullptr;
 		}
 
-		int value()
+		int const& value()
 		{
 			assert_exists();
 			return target->__val;
@@ -339,7 +345,7 @@ public:
 			return target != with.target;
 		}
 
-		int operator*()
+		int const& operator*()
 		{
 			assert_exists();
 			return target->__val;
@@ -408,8 +414,17 @@ BOOST_AUTO_TEST_CASE(testSet)
 	set::iterator j = s.root();
 	j++;
 	BOOST_CHECK_EQUAL(i == j, true);
-	
+
 	i = s.root();
 	j = c.root();
 	BOOST_CHECK_EQUAL(i == j, false);
+
+	for (int n = -3; n<=3; n++)
+	{
+		i = c.find(n);
+		if (i.exists())
+		{
+			c.erase(i);
+		}
+	}
 }
