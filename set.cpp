@@ -129,12 +129,14 @@ public:
 			while (*place != nullptr);
 			*place = new node(value, parent);
 		}
+		__count++;
 	}
 
 	void erase(iterator item)
 	{
 		item.assert_exists();
 		node** place = ((item.target->parent == nullptr) ? &__root : item.target->parent->left == item.target ? &item.target->parent->left : &item.target->parent->right);
+		__count--;
 		if (item.target->left == nullptr)
 		{
 			if (item.target->right) item.target->right->parent = (*place)->parent;
@@ -158,11 +160,13 @@ public:
 	set()
 	{
 		__root = nullptr;
+		__count = 0;
 	}
 
 	set(set const& s)
 	{
 		__root = nullptr;
+		__count = 0;
 		node* n = s.__root;
 		while (n != nullptr && n->left != nullptr)
 			n = n->left;
@@ -182,6 +186,7 @@ public:
 	set& operator= (set const& s)
 	{
 		__root = nullptr;
+		__count = 0;
 		node* n = s.__root;
 		while (n != nullptr && n->left != nullptr)
 			n = n->left;
@@ -427,4 +432,5 @@ BOOST_AUTO_TEST_CASE(testSet)
 			c.erase(i);
 		}
 	}
+	BOOST_CHECK_EQUAL(c.count(), 0);
 }
